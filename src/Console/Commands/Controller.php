@@ -1,6 +1,6 @@
 <?php
 
-namespace Andregumieri\LaravelCrud\Console\Commands;
+namespace AndreGumieri\LaravelCrud\Console\Commands;
 
 use Illuminate\Routing\Console\ControllerMakeCommand;
 
@@ -24,12 +24,5 @@ class Controller extends ControllerMakeCommand
         );
 
         return $class;
-    }
-
-    protected function resolveStubPath($stub)
-    {
-        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-            ? $customPath
-            : __DIR__.$stub;
     }
 }
