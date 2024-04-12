@@ -1,4 +1,5 @@
 <?php
+namespace Andregumieri\LaravelCrud;
 
 use Andregumieri\LaravelCrud\Console\Commands\Crud;
 
