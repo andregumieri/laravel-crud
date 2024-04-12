@@ -17,4 +17,11 @@ class Resource extends ResourceMakeCommand
 
         return str_replace(array_keys($replaces), array_values($replaces), parent::buildClass($name));
     }
+
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+            ? $customPath
+            : __DIR__.$stub;
+    }
 }
