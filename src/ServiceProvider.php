@@ -1,8 +1,12 @@
 <?php
-namespace Andregumieri\LaravelCrud;
+namespace AndreGumieri\LaravelCrud;
 
-use Andregumieri\LaravelCrud\Console\Commands\Controller;
-use Andregumieri\LaravelCrud\Console\Commands\Crud;
+use AndreGumieri\LaravelCrud\Console\Commands\Controller;
+use AndreGumieri\LaravelCrud\Console\Commands\Crud;
+use AndreGumieri\LaravelCrud\Console\Commands\Repository;
+use AndreGumieri\LaravelCrud\Console\Commands\RepositoryContract;
+use AndreGumieri\LaravelCrud\Console\Commands\Resource;
+use AndreGumieri\LaravelCrud\Console\Commands\Service;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
@@ -10,8 +14,12 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     {
         if($this->app->runningInConsole()) {
             $this->commands([
+                Controller::class,
                 Crud::class,
-                Controller::class
+                Repository::class,
+                RepositoryContract::class,
+                Resource::class,
+                Service::class
             ]);
         }
     }

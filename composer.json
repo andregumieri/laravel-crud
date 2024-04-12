@@ -4,13 +4,13 @@
     "type": "library",
     "autoload": {
         "psr-4": {
-            "Andregumieri\\LaravelCrud\\": "src/"
+            "AndreGumieri\\LaravelCrud\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Andregumieri\\LaravelCrud\\ServiceProvider"
+                "AndreGumieri\\LaravelCrud\\ServiceProvider"
             ]
         }
     },
