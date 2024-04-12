@@ -1,9 +1,10 @@
 <?php
 namespace Andregumieri\LaravelCrud\Console\Commands;
 
+
 use Illuminate\Console\Command;
 
-class Crud extends \Illuminate\Console\Command
+class Crud extends Command
 {
     /**
      * The name and signature of the console command.
