@@ -1,0 +1,30 @@
+{
+    "name": "andregumieri/laravel-crud",
+    "description": "A bunch of file creation to start a CRUD",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Andregumieri\\LaravelCrud\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Andregumieri\\LaravelCrud\\ServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Andre Gumieri de Freitas",
+            "email": "andregumieri@gmail.com"
+        }
+    ],
+    "require": {
+        "illuminate/support": "^10|^11",
+        "illuminate/console": "^10|^11"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.1"
+    }
+}
