@@ -1,0 +1,22 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ rootNamespace }}Http\Controllers\Controller;
+use {{requestNamespace}}\{{requestClass}};
+use {{serviceNamespace}}\{{serviceClass}};
+
+class {{ class }} extends Controller
+{
+    public function __construct(
+        private readonly {{serviceClass}} $service
+    ){}
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function __invoke({{requestClass}} $request)
+    {
+        //
+    }
+}
