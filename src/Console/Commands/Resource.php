@@ -20,8 +20,12 @@ class Resource extends ResourceMakeCommand
 
     protected function resolveStubPath($stub)
     {
-        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-            ? $customPath
-            : __DIR__.$stub;
+        if(file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))) {
+            return $customPath;
+        } else if (file_exists(__DIR__.$stub)) {
+            return __DIR__.$stub;
+        } else {
+            return parent::resolveStubPath($stub);
+        }
     }
 }
