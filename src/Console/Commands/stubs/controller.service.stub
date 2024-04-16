@@ -3,6 +3,7 @@
 namespace {{ namespace }};
 
 use {{ rootNamespace }}Http\Controllers\Controller;
+use {{ rootNamespace }}Http\Resources\{{resourceClassPath}};
 use {{requestNamespace}}\{{requestClass}};
 use {{serviceNamespace}}\{{serviceClass}};
 
@@ -17,6 +18,7 @@ class {{ class }} extends Controller
      */
     public function __invoke({{requestClass}} $request)
     {
-        //
+        $model = $this->service->handle($request->all());
+        return response(new {{resourceClass}}($model));
     }
 }

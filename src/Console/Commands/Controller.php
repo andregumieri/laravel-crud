@@ -3,6 +3,7 @@
 namespace AndreGumieri\LaravelCrud\Console\Commands;
 
 use Illuminate\Routing\Console\ControllerMakeCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 class Controller extends ControllerMakeCommand
 {
@@ -17,6 +18,16 @@ class Controller extends ControllerMakeCommand
                 '{{requestNamespace}}' => $this->rootNamespace() . 'Http\\Requests\\' . class_basename($this->getNamespace($nameBase)),
                 '{{requestClass}}' => class_basename($nameBase) . 'Request',
             ];
+        }
+
+        if($resource = $this->option('with-resource')) {
+            $resourceName = explode('/', $resource);
+            $resourceName = array_pop($resourceName);
+
+            $replaces = array_merge($replaces, [
+                '{{resourceClassPath}}' => str_replace('/', '\\', $resource),
+                '{{resourceClass}}' => $resourceName,
+            ]);
         }
 
         $class = str_replace(
@@ -35,5 +46,12 @@ class Controller extends ControllerMakeCommand
         } else {
             return parent::resolveStubPath($stub);
         }
+    }
+
+    protected function getOptions()
+    {
+        $options = parent::getOptions();
+        $options[] = ['with-resource', null, InputOption::VALUE_OPTIONAL, 'Inform the resource to the controller type service'];
+        return $options;
     }
 }
