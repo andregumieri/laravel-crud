@@ -13,7 +13,7 @@ class Crud extends Command
      *
      * @var string
      */
-    protected $signature = 'make:crud {singular} {plural}';
+    protected $signature = 'make:crud {singular} {plural?}';
 
     /**
      * The console command description.
@@ -28,7 +28,7 @@ class Crud extends Command
     public function handle()
     {
         $singularClass = $this->argument('singular');
-        $pluralClass = $this->argument('plural');
+        $pluralClass = $this->argument('plural') ?? $singularClass . 's';
         $singularString = (string)Str::of($singularClass)->lower();
         $pluralString = (string)Str::of($pluralClass)->lower();
 
@@ -79,6 +79,5 @@ class Crud extends Command
         $this->line("\t" . sprintf('Route::get(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', $singularString, $pluralClass, 'VerController'));
         $this->line("\t" . sprintf('Route::delete(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', $singularString, $pluralClass, 'DeletarController'));
         $this->line('});');
-
     }
 }
