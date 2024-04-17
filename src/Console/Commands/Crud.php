@@ -62,6 +62,7 @@ class Crud extends Command
 
         Artisan::call(sprintf('make:collection %sCollection', $singularClass));
 
+        // @todo guarded com campos basicos
         Artisan::call('make:model ' . $singularClass . ' -m');
 
         Artisan::call('make:repository ' . $singularClass);

@@ -3,7 +3,7 @@
 namespace {{ namespace }};
 
 use {{ rootNamespace }}Models\{{model}};
-use {{ rootNamespace }}Repositories\Repository;
+use AndreGumieri\LaravelRepository\Repositories\Repository;
 
 class {{ class }} extends Repository implements Contracts\{{ class }}
 {

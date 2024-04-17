@@ -21,6 +21,7 @@
         }
     ],
     "require": {
-        "laravel/framework": "^10|^11"
+        "laravel/framework": "^10|^11",
+        "andregumieri/laravel-repository": "^1.0"
     }
 }
