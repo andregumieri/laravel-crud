@@ -75,7 +75,7 @@ class Crud extends Command
 
         // SERVICES
         foreach(['CreateService', 'DeleteService', 'UpdateService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s --repository-action=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel(), Str::of($key)->replaceEnd('Service', '')->camel()));
         }
 
         foreach(['ListService'] as $key) {
@@ -83,7 +83,7 @@ class Crud extends Command
         }
 
         foreach(['ViewService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, 'searchPaginated', $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
         }
 
         foreach(['CreateController', 'UpdateController'] as $key) {
