@@ -30,6 +30,9 @@ class Service extends GeneratorCommand
     protected function getStub()
     {
         $stub = '/stubs/service.stub';
+        if($type = $this->option('type')) {
+            $stub = "/stubs/service.{$type}.stub";
+        }
 
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath
@@ -55,6 +58,11 @@ class Service extends GeneratorCommand
             '{{modelUsePath}}' => $this->rootNamespace() . 'Models\\' . Str::of(class_basename($namespace))->replaceMatches('/Repository$/', '')->studly()
         ];
 
+        if($request = $this->option('request')) {
+            $replaces['{{requestClass}}'] = class_basename($request);
+            $replaces['{{requestNamespace}}'] = $this->rootNamespace() . 'Http\\Requests\\' . str_replace("/", '\\', ltrim($request, '\\/'));
+        }
+
         return str_replace(
             array_keys($replaces), array_values($replaces), parent::buildClass($name)
         );
@@ -65,12 +73,15 @@ class Service extends GeneratorCommand
         return $rootNamespace . '\Services';
     }
 
+
     protected function getOptions()
     {
         $options = parent::getOptions();
         $options[] = ['repository', 'r', InputOption::VALUE_REQUIRED, 'Informs the service whats the repository to load'];
         $options[] = ['repository-action', null, InputOption::VALUE_OPTIONAL, 'Informs the repository action'];
+        $options[] = ['request', null, InputOption::VALUE_REQUIRED, 'Informs the request'];
         $options[] = ['force', null, InputOption::VALUE_NONE, 'Create the class even if the controller already exists'];
+        $options[] = ['type', null, InputOption::VALUE_REQUIRED, 'Manually specify the controller stub file to use'];
         return $options;
     }
 }

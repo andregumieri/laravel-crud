@@ -6,14 +6,15 @@ use {{modelUsePath}};
 use {{repositoryUsePath}};
 use {{requestNamespace}};
 
+
 class {{ class }}
 {
  	public function __construct(
  		private readonly {{repositoryClass}} $repository
  	) {}
 
-    public function handle({{requestClass}} $request): {{modelClass}}
+    public function handle({{requestClass}} $request): void
     {
-        return $this->repository->{{action}}($data);
+        $this->repository->{{action}}($request->key());
     }
 }

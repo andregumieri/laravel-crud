@@ -60,33 +60,65 @@ class Crud extends Command
         $singularString = (string)Str::of($singularClass)->lower();
         $pluralString = (string)Str::of($pluralClass)->lower();
 
+
+        // COLLECTION
         Artisan::call(sprintf('make:collection %sCollection', $singularClass));
 
+
+        // MODEL
         Artisan::call('make:model ' . $singularClass . ' -m');
 
+
+        // REPOSITORY
         Artisan::call('make:repository ' . $singularClass);
 
+
+        // SERVICES
         foreach(['CreateService', 'DeleteService', 'UpdateService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository', $pluralClass, $this->string($key), $singularClass));
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
         }
 
-        foreach(['CreateController', 'DeleteController', 'UpdateController', 'ViewController', 'ListController'] as $key) {
-        Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s', $pluralClass, $this->string('ViewService'), $singularClass, 'findOrFail'));
-        Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s', $pluralClass, $this->string('ListService'), $singularClass, 'searchPaginated'));
+        foreach(['ListService'] as $key) {
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, 'searchPaginated', $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
+        }
 
+        foreach(['ViewService'] as $key) {
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, 'searchPaginated', $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
+        }
+
+        foreach(['CreateController', 'UpdateController'] as $key) {
             Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
         }
 
-        foreach(['CreateRequest', 'DeleteRequest', 'UpdateRequest', 'ViewRequest', 'ListRequest'] as $key) {
+
+        // CONTROLLERS
+        Artisan::call(sprintf('make:controller %s/%s --type=service-paginated --with-resource=%s/%s', $pluralClass, $this->string('ListController'), $singularClass, $singularClass));
+        Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s --model=%s', $pluralClass, $this->string('ViewController'), $singularClass, $singularClass, $singularClass));
+        Artisan::call(sprintf('make:controller %s/%s --type=service-delete --with-resource=%s/%s --model=%s', $pluralClass, $this->string('DeleteController'), $singularClass, $singularClass, $singularClass));
+
+
+        // REQUESTS
+        foreach(['DeleteRequest', 'UpdateRequest', 'ViewRequest'] as $key) {
+            $gate = $this->string((string)Str::of($key)->replaceEnd('Request', '')->kebab());
+            Artisan::call(sprintf('make:request %s/%s -g %s-%s --type=key --route-model=%s', $pluralClass, $this->string($key), Str::of($singularClass)->kebab(), $gate, Str::of($singularClass)->camel()));
+        }
+
+        foreach(['CreateRequest', 'ListRequest'] as $key) {
             $gate = $this->string((string)Str::of($key)->replaceEnd('Request', '')->kebab());
             Artisan::call(sprintf('make:request %s/%s -g %s-%s', $pluralClass, $this->string($key), Str::of($singularClass)->kebab(), $gate));
         }
 
+
+        // RESOURCES
         Artisan::call(sprintf('make:resource %s/%s', $singularClass, $singularClass));
         Artisan::call(sprintf('make:resource %s/%sCollection', $singularClass, $singularClass));
 
+
+        // POLICY
         Artisan::call(sprintf('make:policy %sPolicy --model=%s', $singularClass, $singularClass));
 
+
+        // OUTPUTS MANUAIS
         // @todo autoadd to file
         $this->alert('Gates: ' . app_path('Providers/AuthServiceProvider.php'));
         $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'list\']);', Str::of($singularClass)->kebab(), $this->string('list'), $singularClass));

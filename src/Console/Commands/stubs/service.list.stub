@@ -5,6 +5,8 @@ namespace {{ namespace }};
 use {{modelUsePath}};
 use {{repositoryUsePath}};
 use {{requestNamespace}};
+use {{ rootNamespace }}Collections\{{modelClass}}Collection
+
 
 class {{ class }}
 {
@@ -12,8 +14,8 @@ class {{ class }}
  		private readonly {{repositoryClass}} $repository
  	) {}
 
-    public function handle({{requestClass}} $request): {{modelClass}}
+    public function handle({{requestClass}} $request): {{modelClass}}Collection
     {
-        return $this->repository->{{action}}($data);
+        return $this->repository->{{action}}($request->only([]));
     }
 }

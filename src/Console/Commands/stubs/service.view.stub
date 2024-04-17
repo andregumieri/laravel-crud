@@ -6,6 +6,7 @@ use {{modelUsePath}};
 use {{repositoryUsePath}};
 use {{requestNamespace}};
 
+
 class {{ class }}
 {
  	public function __construct(
@@ -14,6 +15,6 @@ class {{ class }}
 
     public function handle({{requestClass}} $request): {{modelClass}}
     {
-        return $this->repository->{{action}}($data);
+        return $request->model();
     }
 }

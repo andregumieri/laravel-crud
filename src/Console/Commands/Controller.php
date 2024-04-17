@@ -3,6 +3,7 @@
 namespace AndreGumieri\LaravelCrud\Console\Commands;
 
 use Illuminate\Routing\Console\ControllerMakeCommand;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class Controller extends ControllerMakeCommand
@@ -10,7 +11,7 @@ class Controller extends ControllerMakeCommand
     protected function buildClass($name)
     {
         $replaces = [];
-        if($this->option('type') == 'service') {
+        if(Str::of($this->option('type'))->startsWith('service')) {
             $nameBase = preg_replace('/Controller$/', '', $name);
             $replaces = [
                 '{{serviceNamespace}}' => $this->rootNamespace() . 'Services\\' . class_basename($this->getNamespace($nameBase)),
