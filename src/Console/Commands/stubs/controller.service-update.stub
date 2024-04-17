@@ -6,6 +6,7 @@ use {{ namespacedModel }};
 use {{ rootNamespace }}Http\Controllers\Controller;
 use {{requestNamespace}}\{{requestClass}};
 use {{serviceNamespace}}\{{serviceClass}};
+use {{ rootNamespace }}Http\Resources\{{resourceClassPath}} as {{resourceClass}}Resource;
 
 class {{ class }} extends Controller
 {
@@ -16,6 +17,6 @@ class {{ class }} extends Controller
     public function __invoke({{ model }} ${{ modelVariable }}, {{requestClass}} $request)
     {
 		$model = $this->service->handle($request);
-		return response(new {{resourceClass}}($model));
+		return response(new {{resourceClass}}Resource($model));
     }
 }
