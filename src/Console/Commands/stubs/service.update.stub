@@ -15,6 +15,6 @@ class {{ class }}
 
     public function handle({{requestClass}} $request): {{modelClass}}
     {
-        return $this->repository->{{action}}($request->all(), $request->key());
+        return $this->repository->{{action}}($request->key(), $request->all());
     }
 }

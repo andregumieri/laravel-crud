@@ -75,7 +75,7 @@ class Crud extends Command
 
         // SERVICES
         foreach(['CreateService', 'DeleteService', 'UpdateService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s --repository-action=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel(), Str::of($key)->replaceEnd('Service', '')->camel()));
         }
 
         foreach(['ListService'] as $key) {
@@ -83,15 +83,20 @@ class Crud extends Command
         }
 
         foreach(['ViewService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, 'searchPaginated', $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
         }
 
-        foreach(['CreateController', 'UpdateController'] as $key) {
-            Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
-        }
 
 
         // CONTROLLERS
+        foreach(['CreateController'] as $key) {
+            Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
+        }
+
+        foreach(['UpdateController'] as $key) {
+            Artisan::call(sprintf('make:controller %s/%s --type=service-update --with-resource=%s/%s --model=%s', $pluralClass, $this->string($key), $singularClass, $singularClass, $singularClass));
+        }
+
         Artisan::call(sprintf('make:controller %s/%s --type=service-paginated --with-resource=%s/%s', $pluralClass, $this->string('ListController'), $singularClass, $singularClass));
         Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s --model=%s', $pluralClass, $this->string('ViewController'), $singularClass, $singularClass, $singularClass));
         Artisan::call(sprintf('make:controller %s/%s --type=service-delete --with-resource=%s/%s --model=%s', $pluralClass, $this->string('DeleteController'), $singularClass, $singularClass, $singularClass));
@@ -132,14 +137,14 @@ class Crud extends Command
         $this->line(sprintf('Route::prefix(\'%s\')->middleware(\'auth:api\')->group(function() {', Str::of($pluralClass)->kebab()));
         $this->line("\t" . sprintf('Route::get(\'/\', \App\Http\Controllers\%s\%s::class);', $pluralClass, $this->string('ListController')));
         $this->line("\t" . sprintf('Route::post(\'/\', \App\Http\Controllers\%s\%s::class);', $pluralClass, $this->string('CreateController')));
-        $this->line("\t" . sprintf('Route::put(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('UpdateController')));
+        $this->line("\t" . sprintf('Route::patch(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('UpdateController')));
         $this->line("\t" . sprintf('Route::get(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('ViewController')));
         $this->line("\t" . sprintf('Route::delete(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('DeleteController')));
         $this->line('});');
 
         // @todo autoadd to file
         $this->alert('AppServiceProvider: ' . app_path('Providers/AppServiceProvider.php'));
-        $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository:class => \\App\\Repositories\\%s\\%sRepository::class,', $singularClass, $singularClass, $singularClass, $singularClass));
+        $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository::class => \\App\\Repositories\\%s\\%sRepository::class,', $singularClass, $singularClass, $singularClass, $singularClass));
     }
 
     private function string(string $key) {
