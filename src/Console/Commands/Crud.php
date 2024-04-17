@@ -42,13 +42,11 @@ class Crud extends Command
             'ViewRequest' => 'VerRequest',
             'ListRequest' => 'ListarRequest',
 
-            'view-any' => 'ver-todos',
+            'list' => 'listar',
             'view' => 'ver',
             'create' => 'criar',
             'update' => 'alterar',
             'delete' => 'deletar',
-            'restore' => 'restaurar',
-            'force-delete' => 'forcar-deletar'
         ]
     ];
 
@@ -76,8 +74,8 @@ class Crud extends Command
 
         // @todo autorizar pelo gate
         foreach(['CreateRequest', 'DeleteRequest', 'UpdateRequest', 'ViewRequest', 'ListRequest'] as $key) {
-            $gate = $this->string(Str::of($key)->replaceEnd('Request', '')->kebab());
-            Artisan::call(sprintf('make:request %s/%s -g %s', $pluralClass, $this->string($key), $gate));
+            $gate = $this->string((string)Str::of($key)->replaceEnd('Request', '')->kebab());
+            Artisan::call(sprintf('make:request %s/%s -g %s-%s', $pluralClass, $this->string($key), Str::of($singularClass)->kebab(), $gate));
         }
 
         Artisan::call(sprintf('make:resource %s/%s', $singularClass, $singularClass));
@@ -87,13 +85,11 @@ class Crud extends Command
 
         // @todo autoadd to file
         $this->alert('Gates: ' . app_path('Providers/AuthServiceProvider.php'));
-        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'viewAny\']);', Str::of($singularClass)->kebab(), $this->string('view-any'), $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'list\']);', Str::of($singularClass)->kebab(), $this->string('list'), $singularClass));
         $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'view\']);', Str::of($singularClass)->kebab(), $this->string('view'), $singularClass));
         $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'create\']);', Str::of($singularClass)->kebab(), $this->string('create'), $singularClass));
         $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'update\']);', Str::of($singularClass)->kebab(), $this->string('update'), $singularClass));
         $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'delete\']);', Str::of($singularClass)->kebab(), $this->string('delete'), $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'restore\']);', Str::of($singularClass)->kebab(), $this->string('restore'), $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'forceDelete\']);', Str::of($singularClass)->kebab(), $this->string('force-delete'), $singularClass));
 
         // @todo autoadd to file
         $this->alert('Routes: ' . base_path('routes/api.php'));
