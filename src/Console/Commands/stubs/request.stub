@@ -4,6 +4,7 @@ namespace {{ namespace }};
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use {{modelNamespace}};
 
 class {{ class }} extends FormRequest
 {
