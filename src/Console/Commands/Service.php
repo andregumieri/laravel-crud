@@ -41,10 +41,16 @@ class Service extends GeneratorCommand
         $repository = $this->option('repository');
         $namespace = $this->rootNamespace() . 'Repositories\\' . Str::of($repository)->replaceMatches('/Repository$/i', '')->studly() . '\\' . str_replace('/', '\\', $repository);
 
+        $action = Str::of(class_basename($name))->replaceMatches('/Service$/', '')->camel();
+
+        if($this->option('repository-action')) {
+            $action = $this->option('repository-action');
+        }
+
         $replaces = [
             '{{repositoryUsePath}}' => $namespace,
             '{{repositoryClass}}' => class_basename($namespace),
-            '{{action}}' => Str::of(class_basename($name))->replaceMatches('/Service$/', '')->camel(),
+            '{{action}}' => $action,
             '{{modelClass}}' => Str::of(class_basename($namespace))->replaceMatches('/Repository$/', '')->studly(),
             '{{modelUsePath}}' => $this->rootNamespace() . 'Models\\' . Str::of(class_basename($namespace))->replaceMatches('/Repository$/', '')->studly()
         ];
@@ -63,6 +69,7 @@ class Service extends GeneratorCommand
     {
         $options = parent::getOptions();
         $options[] = ['repository', 'r', InputOption::VALUE_REQUIRED, 'Informs the service whats the repository to load'];
+        $options[] = ['repository-action', null, InputOption::VALUE_OPTIONAL, 'Informs the repository action'];
         $options[] = ['force', null, InputOption::VALUE_NONE, 'Create the class even if the controller already exists'];
         return $options;
     }

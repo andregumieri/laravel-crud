@@ -66,11 +66,14 @@ class Crud extends Command
 
         Artisan::call('make:repository ' . $singularClass);
 
-        foreach(['CreateService', 'DeleteService', 'UpdateService', 'ViewService', 'ListService'] as $key) {
+        foreach(['CreateService', 'DeleteService', 'UpdateService'] as $key) {
             Artisan::call(sprintf('make:service %s/%s -r %sRepository', $pluralClass, $this->string($key), $singularClass));
         }
 
         foreach(['CreateController', 'DeleteController', 'UpdateController', 'ViewController', 'ListController'] as $key) {
+        Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s', $pluralClass, $this->string('ViewService'), $singularClass, 'findOrFail'));
+        Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s', $pluralClass, $this->string('ListService'), $singularClass, 'searchPaginated'));
+
             Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
         }
 
