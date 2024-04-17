@@ -15,7 +15,7 @@ class {{ class }} extends Controller
 
     public function __invoke({{requestClass}} $request)
     {
-        $model = $this->service->handle($request->all());
+        $model = $this->service->handle($request);
         return response(new {{resourceClass}}($model));
     }
 }
