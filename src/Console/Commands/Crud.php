@@ -4,6 +4,7 @@ namespace AndreGumieri\LaravelCrud\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Crud extends Command
@@ -24,6 +25,12 @@ class Crud extends Command
 
     const TRANSLATE = [
         'pt_BR' => [
+            'Create' => 'Criar',
+            'Delete' => 'Deletar',
+            'Update' => 'Alterar',
+            'View' => 'Ver',
+            'List' => 'Listar',
+
             'CreateService' => 'CriarService',
             'DeleteService' => 'DeletarService',
             'UpdateService' => 'AlterarService',
@@ -49,16 +56,20 @@ class Crud extends Command
             'delete' => 'deletar',
         ]
     ];
+    private string|array|bool|null $singularClass;
+    private string|array|bool $pluralClass;
+    private string $singularString;
+    private string $pluralString;
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $singularClass = $this->argument('singular');
-        $pluralClass = $this->argument('plural') ?? $singularClass . 's';
-        $singularString = (string)Str::of($singularClass)->lower();
-        $pluralString = (string)Str::of($pluralClass)->lower();
+        $this->singularClass = $singularClass = $this->argument('singular');
+        $this->pluralClass = $pluralClass = $this->argument('plural') ?? $singularClass . 's';
+        $this->singularString = $singularString = (string)Str::of($singularClass)->lower();
+        $this->pluralString = $pluralString = (string)Str::of($pluralClass)->lower();
 
 
         // COLLECTION
@@ -137,6 +148,8 @@ class Crud extends Command
         // @todo autoadd to file
         $this->alert('AppServiceProvider: ' . app_path('Providers/AppServiceProvider.php'));
         $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository::class => \\App\\Repositories\\%s\\%sRepository::class,', $singularClass, $singularClass, $singularClass, $singularClass));
+
+        $this->createsOpenApiFile();
     }
 
     private function string(string $key) {
@@ -145,5 +158,37 @@ class Crud extends Command
         }
 
         return self::TRANSLATE[$this->option('locale')][$key];
+    }
+
+    private function createsOpenApiFile()
+    {
+        $openAPI = [
+            'openapi' => '3.0.1',
+            'info' => ['title' => 'CRUD ' . Str::of($this->pluralClass)->ucsplit()->join(' '), 'description' => '', 'version' => '1.0.0'],
+            'tags' => [],
+            'paths' => [],
+            'components' => ['schemas' => (object)[], 'securitySchemes' => ['bearer' => ['type' => 'http', 'scheme' => 'bearer']]],
+            'servers' => []
+        ];
+
+        $base = '/api/' . Str::of($this->pluralClass)->kebab();
+
+        $parameters = [['name' => 'Accept', 'in' => 'header', 'description' => '', 'required' => true, 'example' => 'application/json', 'schema' => ['type' => 'string']]];
+        $responses = ['200' => ['description' => 'Success', 'content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]]]]]];
+
+        $openAPI['paths'][$base] = [
+            'post' => ['summary' => $this->string('Create'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses, 'requestBody' => ['content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]], 'example' => (object)[]]]]],
+            'get' => ['summary' => $this->string('List'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses]
+        ];
+
+        $openAPI['paths'][$base . '/{{id}}'] = [
+            'patch' => ['summary' => $this->string('Update'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses, 'requestBody' => ['content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]], 'example' => (object)[]]]]],
+            'get' => ['summary' => $this->string('View'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses],
+            'delete' => ['summary' => $this->string('Delete'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses]
+        ];
+
+        $filename = Str::of($base)->slug() . '.openapi.json';
+        Storage::disk('local')->put($filename, json_encode($openAPI, JSON_UNESCAPED_SLASHES));
+        $this->info("Open API file generated at " . Storage::path($filename));
     }
 }
