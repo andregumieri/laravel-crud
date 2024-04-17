@@ -3,6 +3,7 @@
 namespace AndreGumieri\LaravelCrud\Console\Commands;
 
 use Illuminate\Foundation\Console\RequestMakeCommand;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class Request extends RequestMakeCommand
@@ -15,14 +16,16 @@ class Request extends RequestMakeCommand
         if($routeModel = $this->option('route-model')) {
             $withModel = true;
             $replaces['{{routeModel}}'] = $routeModel;
+            $replaces['{{model}}'] = Str::of($routeModel)->studly();
+            $replaces['{{modelNamespace}}'] = $this->rootNamespace() . 'Models\\' . Str::of($routeModel)->studly();
         }
 
         $authorize = 'true';
         if($this->option('policy')) {
-            if($withModel) {
+            if($this->option('type') == 'key') {
                 $authorize = sprintf('$this->user()->can(\'%s\', $this->model())', $this->option('policy'));
             } else {
-                $authorize = sprintf('$this->user()->can(\'%s\')', $this->option('policy'));
+                $authorize = sprintf('$this->user()->can(\'%s\', %s::class)', $this->option('policy'), $replaces['{{model}}']);
             }
         }
 
