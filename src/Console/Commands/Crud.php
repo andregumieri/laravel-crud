@@ -142,7 +142,7 @@ class Crud extends Command
         $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository:class => \\App\\Repositories\\%s\\%sRepository::class,', $singularClass, $singularClass, $singularClass, $singularClass));
     }
 
-    private function string($key) {
+    private function string(string $key) {
         if(!isset(self::TRANSLATE[$this->option('locale')])) {
             return $key;
         }
