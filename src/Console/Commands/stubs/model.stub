@@ -1,0 +1,23 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use {{rootNamespace}}Collections\{{ class }}Collection;
+
+class {{ class }} extends Model
+{
+    use HasFactory;
+
+	/**
+     * Create a new collection instance.
+     *
+     * @param array $models
+     * @return {{ class }}Collection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new {{ class }}Collection($models);
+    }
+}

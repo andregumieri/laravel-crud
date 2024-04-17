@@ -60,6 +60,8 @@ class Crud extends Command
         $singularString = (string)Str::of($singularClass)->lower();
         $pluralString = (string)Str::of($pluralClass)->lower();
 
+        Artisan::call(sprintf('make:collection %sCollection', $singularClass));
+
         Artisan::call('make:model ' . $singularClass . ' -m');
 
         Artisan::call('make:repository ' . $singularClass);
