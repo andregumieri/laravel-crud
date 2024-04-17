@@ -1,0 +1,21 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespacedModel }};
+use {{ rootNamespace }}Http\Controllers\Controller;
+use {{requestNamespace}}\{{requestClass}};
+use {{serviceNamespace}}\{{serviceClass}};
+
+class {{ class }} extends Controller
+{
+    public function __construct(
+        private readonly {{serviceClass}} $service
+    ){}
+
+    public function __invoke({{ model }} ${{ modelVariable }}, {{requestClass}} $request)
+    {
+		$model = $this->service->handle($request);
+		return response(new {{resourceClass}}($model));
+    }
+}

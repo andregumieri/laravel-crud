@@ -86,12 +86,17 @@ class Crud extends Command
             Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
         }
 
-        foreach(['CreateController', 'UpdateController'] as $key) {
-            Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
-        }
 
 
         // CONTROLLERS
+        foreach(['CreateController'] as $key) {
+            Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
+        }
+
+        foreach(['UpdateController'] as $key) {
+            Artisan::call(sprintf('make:controller %s/%s --type=service-update --with-resource=%s/%s --model=%s', $pluralClass, $this->string($key), $singularClass, $singularClass, $singularClass));
+        }
+
         Artisan::call(sprintf('make:controller %s/%s --type=service-paginated --with-resource=%s/%s', $pluralClass, $this->string('ListController'), $singularClass, $singularClass));
         Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s --model=%s', $pluralClass, $this->string('ViewController'), $singularClass, $singularClass, $singularClass));
         Artisan::call(sprintf('make:controller %s/%s --type=service-delete --with-resource=%s/%s --model=%s', $pluralClass, $this->string('DeleteController'), $singularClass, $singularClass, $singularClass));
