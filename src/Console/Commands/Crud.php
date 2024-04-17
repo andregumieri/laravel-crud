@@ -139,7 +139,7 @@ class Crud extends Command
 
         // @todo autoadd to file
         $this->alert('AppServiceProvider: ' . app_path('Providers/AppServiceProvider.php'));
-        $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository:class => \\App\\Repositories\\%s\\%sRepository::class,', $singularClass, $singularClass, $singularClass, $singularClass));
+        $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository::class => \\App\\Repositories\\%s\\%sRepository::class,', $singularClass, $singularClass, $singularClass, $singularClass));
     }
 
     private function string(string $key) {
