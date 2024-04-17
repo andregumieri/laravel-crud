@@ -5,6 +5,7 @@ use AndreGumieri\LaravelCrud\Console\Commands\Controller;
 use AndreGumieri\LaravelCrud\Console\Commands\Crud;
 use AndreGumieri\LaravelCrud\Console\Commands\Repository;
 use AndreGumieri\LaravelCrud\Console\Commands\RepositoryContract;
+use AndreGumieri\LaravelCrud\Console\Commands\Request;
 use AndreGumieri\LaravelCrud\Console\Commands\Resource;
 use AndreGumieri\LaravelCrud\Console\Commands\Service;
 
@@ -18,6 +19,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 Crud::class,
                 Repository::class,
                 RepositoryContract::class,
+                Request::class,
                 Resource::class,
                 Service::class
             ]);

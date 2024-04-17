@@ -39,7 +39,7 @@ class Service extends GeneratorCommand
     protected function buildClass($name)
     {
         $repository = $this->option('repository');
-        $namespace = $this->rootNamespace() . 'Repositories\\' . str_replace('/', '\\', $repository);
+        $namespace = $this->rootNamespace() . 'Repositories\\' . Str::of($repository)->replaceMatches('/Repository$/i', '')->studly() . '\\' . str_replace('/', '\\', $repository);
 
         $replaces = [
             '{{repositoryUsePath}}' => $namespace,

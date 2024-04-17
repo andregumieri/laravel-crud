@@ -3,18 +3,21 @@
 namespace AndreGumieri\LaravelCrud\Console\Commands;
 
 use Illuminate\Foundation\Console\RequestMakeCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 class Request extends RequestMakeCommand
 {
     protected function buildClass($name)
     {
-        dd($name);
         $replaces = [];
+
+        $authorize = 'false';
+        if($this->option('gate')) {
+            $authorize = sprintf('Gate::allows(\'%s\')', $this->option('gate'));
+        }
+
         $replaces = [
-            '{{gate}}' => $this->rootNamespace() . 'Services\\' . class_basename($this->getNamespace($nameBase)),
-            '{{serviceClass}}' => class_basename($nameBase) . 'Service',
-            '{{requestNamespace}}' => $this->rootNamespace() . 'Http\\Requests\\' . class_basename($this->getNamespace($nameBase)),
-            '{{requestClass}}' => class_basename($nameBase) . 'Request',
+            '{{authorize}}' => $authorize,
         ];
 
         $class = str_replace(
@@ -22,6 +25,13 @@ class Request extends RequestMakeCommand
         );
 
         return $class;
+    }
+
+    protected function getOptions()
+    {
+        $options = parent::getOptions();
+        $options[] = ['gate', 'g', InputOption::VALUE_OPTIONAL, 'Informs the gate for authorization'];
+        return $options;
     }
 
     protected function resolveStubPath($stub)

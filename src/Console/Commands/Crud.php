@@ -41,6 +41,14 @@ class Crud extends Command
             'UpdateRequest' => 'AlterarRequest',
             'ViewRequest' => 'VerRequest',
             'ListRequest' => 'ListarRequest',
+
+            'view-any' => 'ver-todos',
+            'view' => 'ver',
+            'create' => 'criar',
+            'update' => 'alterar',
+            'delete' => 'deletar',
+            'restore' => 'restaurar',
+            'force-delete' => 'forcar-deletar'
         ]
     ];
 
@@ -59,16 +67,17 @@ class Crud extends Command
         Artisan::call('make:repository ' . $singularClass);
 
         foreach(['CreateService', 'DeleteService', 'UpdateService', 'ViewService', 'ListService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s', $pluralClass, $this->string($key)));
+            Artisan::call(sprintf('make:service %s/%s -r %sRepository', $pluralClass, $this->string($key), $singularClass));
         }
 
-        // @todo Alterar o stub para já chamar a service
         foreach(['CreateController', 'DeleteController', 'UpdateController', 'ViewController', 'ListController'] as $key) {
             Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
         }
 
+        // @todo autorizar pelo gate
         foreach(['CreateRequest', 'DeleteRequest', 'UpdateRequest', 'ViewRequest', 'ListRequest'] as $key) {
-            Artisan::call(sprintf('make:request %s/%s', $pluralClass, $this->string($key)));
+            $gate = $this->string(Str::of($key)->replaceEnd('Request', '')->kebab());
+            Artisan::call(sprintf('make:request %s/%s -g %s', $pluralClass, $this->string($key), $gate));
         }
 
         Artisan::call(sprintf('make:resource %s/%s', $singularClass, $singularClass));
@@ -76,23 +85,29 @@ class Crud extends Command
 
         Artisan::call(sprintf('make:policy %sPolicy --model=%s', $singularClass, $singularClass));
 
+        // @todo autoadd to file
         $this->alert('Gates: ' . app_path('Providers/AuthServiceProvider.php'));
-        $this->line(sprintf('Gate::define(\'%s-view-any\', [%sPolicy::class, \'viewAny\']);', $singularString, $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-view\', [%sPolicy::class, \'view\']);', $singularString, $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-create\', [%sPolicy::class, \'create\']);', $singularString, $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-update\', [%sPolicy::class, \'update\']);', $singularString, $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-delete\', [%sPolicy::class, \'delete\']);', $singularString, $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-restore\', [%sPolicy::class, \'restore\']);', $singularString, $singularClass));
-        $this->line(sprintf('Gate::define(\'%s-force-delete\', [%sPolicy::class, \'forceDelete\']);', $singularString, $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'viewAny\']);', Str::of($singularClass)->kebab(), $this->string('view-any'), $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'view\']);', Str::of($singularClass)->kebab(), $this->string('view'), $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'create\']);', Str::of($singularClass)->kebab(), $this->string('create'), $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'update\']);', Str::of($singularClass)->kebab(), $this->string('update'), $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'delete\']);', Str::of($singularClass)->kebab(), $this->string('delete'), $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'restore\']);', Str::of($singularClass)->kebab(), $this->string('restore'), $singularClass));
+        $this->line(sprintf('Gate::define(\'%s-%s\', [%sPolicy::class, \'forceDelete\']);', Str::of($singularClass)->kebab(), $this->string('force-delete'), $singularClass));
 
+        // @todo autoadd to file
         $this->alert('Routes: ' . base_path('routes/api.php'));
-        $this->line(sprintf('Route::prefix(\'%s\')->middleware(\'auth:api\')->group(function() {', $pluralString));
+        $this->line(sprintf('Route::prefix(\'%s\')->middleware(\'auth:api\')->group(function() {', Str::of($pluralClass)->kebab()));
         $this->line("\t" . sprintf('Route::get(\'/\', \App\Http\Controllers\%s\%s::class);', $pluralClass, $this->string('ListController')));
         $this->line("\t" . sprintf('Route::post(\'/\', \App\Http\Controllers\%s\%s::class);', $pluralClass, $this->string('CreateController')));
-        $this->line("\t" . sprintf('Route::put(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', $singularString, $pluralClass, $this->string('UpdateController')));
-        $this->line("\t" . sprintf('Route::get(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', $singularString, $pluralClass, $this->string('ViewController')));
-        $this->line("\t" . sprintf('Route::delete(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', $singularString, $pluralClass, $this->string('DeleteController')));
+        $this->line("\t" . sprintf('Route::put(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('UpdateController')));
+        $this->line("\t" . sprintf('Route::get(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('ViewController')));
+        $this->line("\t" . sprintf('Route::delete(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('DeleteController')));
         $this->line('});');
+
+        // @todo autoadd to file
+        $this->alert('AppServiceProvider: ' . app_path('Providers/AuthServiceProvider.php'));
+        $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%s::class => \\App\\Repositories\\%s\\%s::class,', $singularClass, $singularClass, $singularClass, $singularClass));
     }
 
     private function string($key) {
