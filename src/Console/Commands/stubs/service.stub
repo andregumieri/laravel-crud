@@ -2,10 +2,18 @@
 
 namespace {{ namespace }};
 
+use {{modelUsePath}};
+use {{repositoryUsePath}};
+
+
 class {{ class }}
 {
-    public function handle()
+ 	public function __construct(
+ 		private readonly {{repositoryClass}} $repository
+ 	) {}
+
+    public function handle(array $data): {{modelClass}}
     {
-        //
+        {{return}}$this->repository->{{action}}($data);
     }
 }

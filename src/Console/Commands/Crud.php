@@ -58,7 +58,6 @@ class Crud extends Command
 
         Artisan::call('make:repository ' . $singularClass);
 
-        // @todo Alterar o stub para já chamar o repository fazendo a ação que deve fazer
         foreach(['CreateService', 'DeleteService', 'UpdateService', 'ViewService', 'ListService'] as $key) {
             Artisan::call(sprintf('make:service %s/%s', $pluralClass, $this->string($key)));
         }
