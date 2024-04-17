@@ -120,8 +120,7 @@ class Crud extends Command
 
 
         // POLICY
-        // @todo locale policy
-        Artisan::call(sprintf('make:policy %sPolicy --model=%s', $singularClass, $singularClass));
+        Artisan::call(sprintf('make:policy %sPolicy --model=%s --method-list=%s --method-view=%s --method-create=%s --method-update=%s --method-delete=%s', $singularClass, $singularClass, $this->string('list'), $this->string('view'), $this->string('create'), $this->string('update'), $this->string('delete')));
 
 
         // OUTPUTS MANUAIS
