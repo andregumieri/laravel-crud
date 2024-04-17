@@ -6,6 +6,7 @@ use {{ namespacedModel }};
 use {{ rootNamespace }}Http\Controllers\Controller;
 use {{ rootNamespace }}Http\Resources\{{resourceClassPath}} as {{resourceClass}}Resource;
 use {{requestNamespace}}\{{requestClass}};
+use {{serviceNamespace}}\{{serviceClass}};
 
 class {{ class }} extends Controller
 {
