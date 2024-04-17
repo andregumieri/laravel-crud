@@ -5,7 +5,7 @@ namespace {{ namespace }};
 use {{modelUsePath}};
 use {{repositoryUsePath}};
 use {{requestNamespace}};
-use {{ rootNamespace }}Collections\{{modelClass}}Collection
+use {{ rootNamespace }}Collections\{{modelClass}}Collection;
 
 
 class {{ class }}
