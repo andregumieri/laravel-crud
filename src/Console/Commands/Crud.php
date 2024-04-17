@@ -62,7 +62,6 @@ class Crud extends Command
 
         Artisan::call(sprintf('make:collection %sCollection', $singularClass));
 
-        // @todo guarded com campos basicos
         Artisan::call('make:model ' . $singularClass . ' -m');
 
         Artisan::call('make:repository ' . $singularClass);
@@ -75,7 +74,6 @@ class Crud extends Command
             Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
         }
 
-        // @todo autorizar pelo gate
         foreach(['CreateRequest', 'DeleteRequest', 'UpdateRequest', 'ViewRequest', 'ListRequest'] as $key) {
             $gate = $this->string((string)Str::of($key)->replaceEnd('Request', '')->kebab());
             Artisan::call(sprintf('make:request %s/%s -g %s-%s', $pluralClass, $this->string($key), Str::of($singularClass)->kebab(), $gate));
