@@ -189,6 +189,6 @@ class Crud extends Command
 
         $filename = Str::of($base)->slug() . '.openapi.json';
         Storage::disk('local')->put($filename, json_encode($openAPI, JSON_UNESCAPED_SLASHES));
-        $this->alert("Open API file generated at " . Storage::path($filename));
+        $this->info("Open API file generated at " . Storage::path($filename));
     }
 }
