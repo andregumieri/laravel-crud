@@ -16,6 +16,6 @@ class {{ class }}
 
     public function handle({{requestClass}} $request): LengthAwarePaginator
     {
-        return $this->repository->{{action}}($request->only([]));
+        return $this->repository->{{action}}($request->only([]), $request->get('per_page', 30));
     }
 }
