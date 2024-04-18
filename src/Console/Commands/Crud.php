@@ -30,6 +30,8 @@ class Crud extends Command
             'Update' => 'Alterar',
             'View' => 'Ver',
             'List' => 'Listar',
+            'Page' => 'Página',
+            'Items per page' => 'Itens por página',
 
             'CreateService' => 'CriarService',
             'DeleteService' => 'DeletarService',
@@ -176,9 +178,14 @@ class Crud extends Command
         $parameters = [['name' => 'Accept', 'in' => 'header', 'description' => '', 'required' => true, 'example' => 'application/json', 'schema' => ['type' => 'string']]];
         $responses = ['200' => ['description' => 'Success', 'content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]]]]]];
 
+        $parametersList = array_merge($parameters, [
+            ['name' => 'page', 'in' => 'query', 'description' => $this->string('Page'), 'required' => false, 'example' => 1, 'schema' => ['type' => 'number']],
+            ['name' => 'per_page', 'in' => 'query', 'description' => $this->string('Items per page'), 'required' => false, 'example' => 60, 'schema' => ['type' => 'number']],
+        ]);
+
         $openAPI['paths'][$base] = [
             'post' => ['summary' => $this->string('Create'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses, 'requestBody' => ['content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]], 'example' => (object)[]]]]],
-            'get' => ['summary' => $this->string('List'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses]
+            'get' => ['summary' => $this->string('List'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parametersList, 'responses' => $responses]
         ];
 
         $openAPI['paths'][$base . '/{{id}}'] = [
