@@ -24,7 +24,7 @@ class Request extends RequestMakeCommand
         if($this->option('policy')) {
             if($this->option('type') == 'key') {
                 $authorize = sprintf('$this->user()->can(\'%s\', $this->model())', $this->option('policy'));
-            } else {
+            } elseif($this->option('type') == 'key') {
                 $authorize = sprintf('$this->user()->can(\'%s\', %s::class)', $this->option('policy'), $replaces['{{model}}']);
             }
         }

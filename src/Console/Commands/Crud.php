@@ -123,7 +123,7 @@ class Crud extends Command
 
         foreach(['CreateRequest', 'ListRequest'] as $key) {
             $gate = $this->string((string)Str::of($key)->replaceEnd('Request', '')->kebab());
-            Artisan::call(sprintf('make:request %s/%s -p %s --route-model=%s', $pluralClass, $this->string($key), $gate, Str::of($singularClass)->camel()));
+            Artisan::call(sprintf('make:request %s/%s -p %s --type=plain --route-model=%s', $pluralClass, $this->string($key), $gate, Str::of($singularClass)->camel()));
         }
 
 
