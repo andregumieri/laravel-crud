@@ -47,4 +47,13 @@ class {{ class }}
     {
         return true;
     }
+
+	/**
+     * Check before all actions and return true or false if user can or cannot execute it.
+     * Returns null if it should be checked by the other functions
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        return null;
+    }
 }
