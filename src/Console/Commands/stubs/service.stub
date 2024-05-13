@@ -2,18 +2,14 @@
 
 namespace {{ namespace }};
 
-use {{modelUsePath}};
-use {{repositoryUsePath}};
-use {{requestNamespace}};
-
 class {{ class }}
 {
  	public function __construct(
- 		private readonly {{repositoryClass}} $repository
+ 		//
  	) {}
 
-    public function handle({{requestClass}} $request): {{modelClass}}
+    public function handle()
     {
-        return $this->repository->{{action}}($data);
+        //
     }
 }
