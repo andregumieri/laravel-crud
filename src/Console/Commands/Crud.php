@@ -14,7 +14,7 @@ class Crud extends Command
      *
      * @var string
      */
-    protected $signature = 'make:crud {singular} {plural?} {--locale=en}';
+    protected $signature = 'make:crud {singular} {plural?} {--locale=} {--repository-base-class=}';
 
     /**
      * The console command description.
@@ -83,7 +83,19 @@ class Crud extends Command
 
 
         // REPOSITORY
-        Artisan::call('make:repository ' . $singularClass);
+        $extends = '';
+        if($this->option('repository-base-class')) {
+            $extends = str_replace("\\", "\\\\", $this->option('repository-base-class'));
+        } else {
+            if(config('crud.repository_base_class') === true) {
+                if(class_exists('AndreGumieri\\LaravelRepository\\Repositories\\Repository')) {
+                    $extends = 'AndreGumieri\\\\LaravelRepository\\\\Repositories\\\\Repository';
+                }
+            } elseif (is_string(config('crud.repository_base_class'))) {
+                $extends = str_replace("\\", "\\\\", config('crud.repository_base_class'));
+            }
+        }
+        Artisan::call(sprintf('make:repository --extends=%s %s', $extends, $singularClass));
 
 
         // SERVICES
@@ -155,11 +167,16 @@ class Crud extends Command
     }
 
     private function string(string $key) {
-        if(!isset(self::TRANSLATE[$this->option('locale')])) {
+        $locale = $this->option('locale');
+        if(!$locale) {
+            $locale = config('crud.locale');
+        }
+
+        if(!isset(self::TRANSLATE[$locale])) {
             return $key;
         }
 
-        return self::TRANSLATE[$this->option('locale')][$key];
+        return self::TRANSLATE[$locale][$key];
     }
 
     private function createsOpenApiFile()

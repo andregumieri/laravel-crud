@@ -3,9 +3,9 @@
 namespace {{ namespace }};
 
 use {{ rootNamespace }}Models\{{model}};
-use AndreGumieri\LaravelRepository\Repositories\Repository;
+{{baseRepositoryUse}}
 
-class {{ class }} extends Repository implements Contracts\{{ class }}
+class {{ class }}{{extends}} implements Contracts\{{ class }}
 {
     public function model(): string
     {

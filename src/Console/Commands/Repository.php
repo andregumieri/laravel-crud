@@ -44,8 +44,15 @@ class Repository extends GeneratorCommand
         $model = str_replace('Repository', '', class_basename($name));
 
         $replaces = [
-            '{{model}}' => $model
+            '{{model}}' => $model,
+            '{{baseRepositoryUse}}' => '',
+            '{{extends}}' => '',
         ];
+
+        if($this->option('extends')) {
+            $replaces['{{baseRepositoryUse}}'] = 'use ' . $this->option('extends') . ' as BaseRepository;';
+            $replaces['{{extends}}'] = ' extends BaseRepository';
+        }
 
         return str_replace(array_keys($replaces), array_values($replaces), parent::buildClass($name));
     }
@@ -54,6 +61,7 @@ class Repository extends GeneratorCommand
     {
         return [
             ['force', null, InputOption::VALUE_NONE, 'Create the class even if the request already exists'],
+            ['extends', null, InputOption::VALUE_OPTIONAL, 'What repository it should extends from'],
         ];
     }
 
