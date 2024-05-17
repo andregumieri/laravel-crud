@@ -16,6 +16,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     public function boot()
     {
+        $this->publishes([
+            __DIR__.'/../config/crud.php' => config_path('crud.php'),
+        ], 'laravel-crud');
+
         if($this->app->runningInConsole()) {
             $this->commands([
                 Collection::class,
@@ -30,5 +34,12 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 Service::class
             ]);
         }
+    }
+
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/crud.php', 'crud'
+        );
     }
 }
