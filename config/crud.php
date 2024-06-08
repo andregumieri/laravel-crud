@@ -15,6 +15,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Creates
+    |--------------------------------------------------------------------------
+    |
+    | What kind of files it should create
+    |
+    */
+    'creates' => [
+        'collection' => true,
+        'model' => true,
+        'migration' => true,
+        'repository' => true,
+        'services' => true,
+        'controllers' => true,
+        'requests' => true,
+        'resources' => true,
+        'policy' => true,
+        'routes' => true,
+        'open_api' => true
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Repository Base Class
     |--------------------------------------------------------------------------
     |
@@ -22,7 +44,7 @@ return [
     |
     | Values:
     | - true: Tries to locate a default repository (for now andregumieri/laravel-repository)
-    | - false|null: Does not extend the repository
+    | - false|null: Do not extends the repository
     | - string: Extends the repository set in the configuration. Ex: "App\Repositories\Base"
     |
     */

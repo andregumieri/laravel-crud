@@ -52,7 +52,9 @@ class Crud extends Command
 
 
         // COLLECTION
-        $this->makeCollection();
+        if(config('crud.creates.collection')) {
+            $this->makeCollection();
+        }
 
 
         // MODEL
@@ -144,7 +146,16 @@ class Crud extends Command
      */
     public function makeModel(): void
     {
-        Artisan::call('make:model ' . $this->singularClass . ' -m');
+        $flags = [];
+        if(config('crud.creates.migration')) {
+            $flags[] = '-m';
+        }
+
+        if(config('crud.creates.collection')) {
+            $flags[] = '--with-collection';
+        }
+
+        Artisan::call('make:model ' . $this->singularClass . ' ' . implode(' ', $flags));
     }
 
     /**
