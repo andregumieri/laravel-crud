@@ -62,11 +62,15 @@ class Crud extends Command
 
 
         // REPOSITORY
-        $this->makeRepository();
+        if(config('crud.creates.repository')) {
+            $this->makeRepository();
+        }
 
 
         // SERVICES
-        $this->makeServices();
+        if(config('crud.creates.service')) {
+            $this->makeServices();
+        }
 
 
         // CONTROLLERS
@@ -74,22 +78,35 @@ class Crud extends Command
 
 
         // REQUESTS
-        $this->makeRequests();
+        if(config('crud.creates.requests')) {
+            $this->makeRequests();
+        }
 
 
         // RESOURCES
-        $this->makeResources();
+        if(config('crud.creates.resources')) {
+            $this->makeResources();
+        }
 
 
         // POLICY
-        $this->makePolicy();
+        if(config('crud.creates.policy')) {
+            $this->makePolicy();
+        }
 
 
         // OUTPUTS MANUAIS
-        $this->outputRoutes();
-        $this->outputServiceProvider();
+        if(config('crud.creates.routes')) {
+            $this->outputRoutes();
+        }
 
-        $this->outputOpenApiFile();
+        if(config('crud.creates.repository')) {
+            $this->outputServiceProvider();
+        }
+
+        if(config('crud.creates.open_api')) {
+            $this->outputOpenApiFile();
+        }
 
 
     }

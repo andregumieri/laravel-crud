@@ -23,11 +23,9 @@ return [
     */
     'creates' => [
         'collection' => true,
-        'model' => true,
         'migration' => true,
         'repository' => true,
         'services' => true,
-        'controllers' => true,
         'requests' => true,
         'resources' => true,
         'policy' => true,
