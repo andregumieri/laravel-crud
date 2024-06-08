@@ -20,6 +20,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             __DIR__.'/../config/crud.php' => config_path('crud.php'),
         ], 'laravel-crud');
 
+
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'laravel-crud');
+        $this->loadJsonTranslationsFrom(__DIR__.'/../lang');
+
         if($this->app->runningInConsole()) {
             $this->commands([
                 Collection::class,

@@ -21,47 +21,15 @@ class Crud extends Command
      *
      * @var string
      */
-    protected $description = 'Cria controller, service, repository, model, migration, policy';
-
-    const TRANSLATE = [
-        'pt_BR' => [
-            'Create' => 'Criar',
-            'Delete' => 'Deletar',
-            'Update' => 'Alterar',
-            'View' => 'Ver',
-            'List' => 'Listar',
-            'Page' => 'Página',
-            'Items per page' => 'Itens por página',
-
-            'CreateService' => 'CriarService',
-            'DeleteService' => 'DeletarService',
-            'UpdateService' => 'AlterarService',
-            'ViewService' => 'VerService',
-            'ListService' => 'ListarService',
-
-            'CreateController' => 'CriarController',
-            'DeleteController' => 'DeletarController',
-            'UpdateController' => 'AlterarController',
-            'ViewController' => 'VerController',
-            'ListController' => 'ListarController',
-
-            'CreateRequest' => 'CriarRequest',
-            'DeleteRequest' => 'DeletarRequest',
-            'UpdateRequest' => 'AlterarRequest',
-            'ViewRequest' => 'VerRequest',
-            'ListRequest' => 'ListarRequest',
-
-            'list' => 'listar',
-            'view' => 'ver',
-            'create' => 'criar',
-            'update' => 'alterar',
-            'delete' => 'deletar',
-        ]
-    ];
+    protected $description = 'Creates controller, service, repository, model, migration, policy';
     private string|array|bool|null $singularClass;
     private string|array|bool $pluralClass;
     private string $singularString;
     private string $pluralString;
+    /**
+     * @var array|bool|\Illuminate\Config\Repository|\Illuminate\Contracts\Foundation\Application|\Illuminate\Foundation\Application|mixed|string|null
+     */
+    private ?string $locale;
 
     /**
      * Execute the console command.
@@ -73,113 +41,58 @@ class Crud extends Command
         $this->singularString = $singularString = (string)Str::of($singularClass)->lower();
         $this->pluralString = $pluralString = (string)Str::of($pluralClass)->lower();
 
+        $this->locale = $this->option('locale');
+        if(!$this->locale) {
+            $this->locale = config('crud.locale');
+        }
+
+        if(!$this->locale) {
+            $this->locale = 'en';
+        }
+
 
         // COLLECTION
-        Artisan::call(sprintf('make:collection %sCollection', $singularClass));
+        $this->makeCollection();
 
 
         // MODEL
-        Artisan::call('make:model ' . $singularClass . ' -m');
+        $this->makeModel();
 
 
         // REPOSITORY
-        $extends = '';
-        if($this->option('repository-base-class')) {
-            $extends = str_replace("\\", "\\\\", $this->option('repository-base-class'));
-        } else {
-            if(config('crud.repository_base_class') === true) {
-                if(class_exists('AndreGumieri\\LaravelRepository\\Repositories\\Repository')) {
-                    $extends = 'AndreGumieri\\\\LaravelRepository\\\\Repositories\\\\Repository';
-                }
-            } elseif (is_string(config('crud.repository_base_class'))) {
-                $extends = str_replace("\\", "\\\\", config('crud.repository_base_class'));
-            }
-        }
-        Artisan::call(sprintf('make:repository --extends=%s %s', $extends, $singularClass));
+        $this->makeRepository();
 
 
         // SERVICES
-        foreach(['CreateService', 'DeleteService', 'UpdateService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s --repository-action=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel(), Str::of($key)->replaceEnd('Service', '')->camel()));
-        }
-
-        foreach(['ListService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, 'searchPaginated', $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
-        }
-
-        foreach(['ViewService'] as $key) {
-            Artisan::call(sprintf('make:service %s/%s -r %sRepository --request=%s/%s --type=%s', $pluralClass, $this->string($key), $singularClass, $pluralClass, $this->string(Str::of($key)->replaceEnd('Service', 'Request')), Str::of($key)->replaceEnd('Service', '')->camel()));
-        }
-
+        $this->makeServices();
 
 
         // CONTROLLERS
-        foreach(['CreateController'] as $key) {
-            Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s', $pluralClass, $this->string($key), $singularClass, $singularClass));
-        }
-
-        foreach(['UpdateController'] as $key) {
-            Artisan::call(sprintf('make:controller %s/%s --type=service-update --with-resource=%s/%s --model=%s', $pluralClass, $this->string($key), $singularClass, $singularClass, $singularClass));
-        }
-
-        Artisan::call(sprintf('make:controller %s/%s --type=service-paginated --with-resource=%s/%s', $pluralClass, $this->string('ListController'), $singularClass, $singularClass));
-        Artisan::call(sprintf('make:controller %s/%s --type=service-view --with-resource=%s/%s --model=%s', $pluralClass, $this->string('ViewController'), $singularClass, $singularClass, $singularClass));
-        Artisan::call(sprintf('make:controller %s/%s --type=service-delete --with-resource=%s/%s --model=%s', $pluralClass, $this->string('DeleteController'), $singularClass, $singularClass, $singularClass));
+        $this->makeControllers();
 
 
         // REQUESTS
-        foreach(['DeleteRequest', 'UpdateRequest', 'ViewRequest'] as $key) {
-            $gate = $this->string((string)Str::of($key)->replaceEnd('Request', '')->kebab());
-            Artisan::call(sprintf('make:request %s/%s -p %s --type=key --route-model=%s', $pluralClass, $this->string($key), $gate, Str::of($singularClass)->camel()));
-        }
-
-        foreach(['CreateRequest', 'ListRequest'] as $key) {
-            $gate = $this->string((string)Str::of($key)->replaceEnd('Request', '')->kebab());
-            Artisan::call(sprintf('make:request %s/%s -p %s --type=plain --route-model=%s', $pluralClass, $this->string($key), $gate, Str::of($singularClass)->camel()));
-        }
+        $this->makeRequests();
 
 
         // RESOURCES
-        Artisan::call(sprintf('make:resource %s/%s', $singularClass, $singularClass));
-        Artisan::call(sprintf('make:resource %s/%sCollection', $singularClass, $singularClass));
+        $this->makeResources();
 
 
         // POLICY
-        Artisan::call(sprintf('make:policy %sPolicy --model=%s --method-list=%s --method-view=%s --method-create=%s --method-update=%s --method-delete=%s', $singularClass, $singularClass, $this->string('list'), $this->string('view'), $this->string('create'), $this->string('update'), $this->string('delete')));
+        $this->makePolicy();
 
 
         // OUTPUTS MANUAIS
-        // @todo autoadd to file
-        $this->alert('Routes: ' . base_path('routes/api.php'));
-        $this->line(sprintf('Route::prefix(\'%s\')->middleware(\'auth:api\')->group(function() {', Str::of($pluralClass)->kebab()));
-        $this->line("\t" . sprintf('Route::get(\'/\', \App\Http\Controllers\%s\%s::class);', $pluralClass, $this->string('ListController')));
-        $this->line("\t" . sprintf('Route::post(\'/\', \App\Http\Controllers\%s\%s::class);', $pluralClass, $this->string('CreateController')));
-        $this->line("\t" . sprintf('Route::patch(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('UpdateController')));
-        $this->line("\t" . sprintf('Route::get(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('ViewController')));
-        $this->line("\t" . sprintf('Route::delete(\'/{%s}\', \App\Http\Controllers\%s\%s::class);', Str::of($singularClass)->camel(), $pluralClass, $this->string('DeleteController')));
-        $this->line('});');
+        $this->outputRoutes();
+        $this->outputServiceProvider();
 
-        // @todo autoadd to file
-        $this->alert('AppServiceProvider: ' . app_path('Providers/AppServiceProvider.php'));
-        $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository::class => \\App\\Repositories\\%s\\%sRepository::class,', $singularClass, $singularClass, $singularClass, $singularClass));
+        $this->outputOpenApiFile();
 
-        $this->createsOpenApiFile();
+
     }
 
-    private function string(string $key) {
-        $locale = $this->option('locale');
-        if(!$locale) {
-            $locale = config('crud.locale');
-        }
-
-        if(!isset(self::TRANSLATE[$locale])) {
-            return $key;
-        }
-
-        return self::TRANSLATE[$locale][$key];
-    }
-
-    private function createsOpenApiFile()
+    private function outputOpenApiFile()
     {
         $openAPI = [
             'openapi' => '3.0.1',
@@ -196,23 +109,242 @@ class Crud extends Command
         $responses = ['200' => ['description' => 'Success', 'content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]]]]]];
 
         $parametersList = array_merge($parameters, [
-            ['name' => 'page', 'in' => 'query', 'description' => $this->string('Page'), 'required' => false, 'example' => 1, 'schema' => ['type' => 'number']],
-            ['name' => 'per_page', 'in' => 'query', 'description' => $this->string('Items per page'), 'required' => false, 'example' => 60, 'schema' => ['type' => 'number']],
+            ['name' => 'page', 'in' => 'query', 'description' => __('Page', locale: $this->locale), 'required' => false, 'example' => 1, 'schema' => ['type' => 'number']],
+            ['name' => 'per_page', 'in' => 'query', 'description' => __('Items per page', locale: $this->locale), 'required' => false, 'example' => 60, 'schema' => ['type' => 'number']],
         ]);
 
         $openAPI['paths'][$base] = [
-            'post' => ['summary' => $this->string('Create'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses, 'requestBody' => ['content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]], 'example' => (object)[]]]]],
-            'get' => ['summary' => $this->string('List'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parametersList, 'responses' => $responses]
+            'post' => ['summary' => __('Create', locale: $this->locale), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses, 'requestBody' => ['content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]], 'example' => (object)[]]]]],
+            'get' => ['summary' => __('List', locale: $this->locale), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parametersList, 'responses' => $responses]
         ];
 
         $openAPI['paths'][$base . '/{{id}}'] = [
-            'patch' => ['summary' => $this->string('Update'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses, 'requestBody' => ['content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]], 'example' => (object)[]]]]],
-            'get' => ['summary' => $this->string('View'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses],
-            'delete' => ['summary' => $this->string('Delete'), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses]
+            'patch' => ['summary' => __('Update', locale: $this->locale), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses, 'requestBody' => ['content' => ['application/json' => ['schema' => ['type' => 'object', 'properties' => (object)[]], 'example' => (object)[]]]]],
+            'get' => ['summary' => __('View', locale: $this->locale), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses],
+            'delete' => ['summary' => __('Delete', locale: $this->locale), 'deprecated' => false, 'description' => '', 'tags' => [], 'parameters' => $parameters, 'responses' => $responses]
         ];
 
         $filename = Str::of($base)->slug() . '.openapi.json';
+
         Storage::disk('local')->put($filename, json_encode($openAPI, JSON_UNESCAPED_SLASHES));
+
         $this->info("Open API file generated at " . Storage::path($filename));
+    }
+
+    /**
+     * @return void
+     */
+    public function makeCollection(): void
+    {
+        Artisan::call(sprintf('make:collection %sCollection', $this->singularClass));
+    }
+
+    /**
+     * @return void
+     */
+    public function makeModel(): void
+    {
+        Artisan::call('make:model ' . $this->singularClass . ' -m');
+    }
+
+    /**
+     * @return void
+     */
+    public function makeRepository(): void
+    {
+        $extends = '';
+        if ($this->option('repository-base-class')) {
+            $extends = str_replace("\\", "\\\\", $this->option('repository-base-class'));
+        } else {
+            if (config('crud.repository_base_class') === true) {
+                if (class_exists('AndreGumieri\\LaravelRepository\\Repositories\\Repository')) {
+                    $extends = 'AndreGumieri\\\\LaravelRepository\\\\Repositories\\\\Repository';
+                }
+            } elseif (is_string(config('crud.repository_base_class'))) {
+                $extends = str_replace("\\", "\\\\", config('crud.repository_base_class'));
+            }
+        }
+        Artisan::call(sprintf('make:repository --extends=%s %s', $extends, $this->singularClass));
+    }
+
+    /**
+     * @return string
+     */
+    public function makeServices(): string
+    {
+        foreach (['create', 'delete', 'update'] as $key) {
+            Artisan::call(sprintf(
+                'make:service %s/%s -r %sRepository --request=%s/%s --type=%s --repository-action=%s',
+                $this->pluralClass,
+                __('laravel-crud::classes.service_' . $key, locale: $this->locale),
+                $this->singularClass,
+                $this->pluralClass,
+                __('laravel-crud::classes.request_' . $key, locale: $this->locale),
+                Str::of($key)->replaceEnd('Service', '')->camel(),
+                Str::of($key)->replaceEnd('Service', '')->camel()
+            ));
+        }
+
+        foreach (['list'] as $key) {
+            Artisan::call(sprintf(
+                'make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s',
+                $this->pluralClass,
+                __('laravel-crud::classes.service_' . $key, locale: $this->locale),
+                $this->singularClass,
+                'searchPaginated',
+                $this->pluralClass,
+                __('laravel-crud::classes.request_' . $key, locale: $this->locale),
+                Str::of($key)->replaceEnd('Service', '')->camel()
+            ));
+        }
+
+        foreach (['view'] as $key) {
+            Artisan::call(sprintf(
+                'make:service %s/%s -r %sRepository --request=%s/%s --type=%s',
+                $this->pluralClass,
+                __('laravel-crud::classes.service_' . $key, locale: $this->locale),
+                $this->singularClass,
+                $this->pluralClass,
+                __('laravel-crud::classes.request_' . $key, locale: $this->locale),
+                Str::of($key)->replaceEnd('Service', '')->camel()
+            ));
+        }
+
+        return $key;
+    }
+
+    /**
+     * @return void
+     */
+    public function makeControllers(): void
+    {
+        Artisan::call(sprintf('make:controller %s/%s --type=service --with-resource=%s/%s',
+            $this->pluralClass,
+            __('laravel-crud::classes.controller_create', locale: $this->locale),
+            $this->singularClass,
+            $this->singularClass));
+
+        Artisan::call(sprintf('make:controller %s/%s --type=service-update --with-resource=%s/%s --model=%s',
+            $this->pluralClass,
+            __('laravel-crud::classes.controller_update', locale: $this->locale),
+            $this->singularClass,
+            $this->singularClass,
+            $this->singularClass));
+
+        Artisan::call(sprintf('make:controller %s/%s --type=service-paginated --with-resource=%s/%s',
+            $this->pluralClass,
+            __('laravel-crud::classes.controller_list', locale: $this->locale),
+            $this->singularClass,
+            $this->singularClass));
+
+        Artisan::call(sprintf('make:controller %s/%s --type=service-view --with-resource=%s/%s --model=%s',
+            $this->pluralClass,
+            __('laravel-crud::classes.controller_view', locale: $this->locale),
+            $this->singularClass,
+            $this->singularClass,
+            $this->singularClass));
+
+        Artisan::call(sprintf('make:controller %s/%s --type=service-delete --with-resource=%s/%s --model=%s',
+            $this->pluralClass,
+            __('laravel-crud::classes.controller_delete', locale: $this->locale),
+            $this->singularClass,
+            $this->singularClass,
+            $this->singularClass));
+    }
+
+    /**
+     * @return void
+     */
+    public function makeRequests(): void
+    {
+        foreach (['delete', 'update', 'view'] as $key) {
+            Artisan::call(sprintf('make:request %s/%s -p %s --type=key --route-model=%s',
+                $this->pluralClass,
+                __('laravel-crud::classes.request_' . $key, locale: $this->locale),
+                __($key, locale: $this->locale),
+                Str::of($this->singularClass)->camel()));
+        }
+
+        foreach (['create', 'list'] as $key) {
+            Artisan::call(sprintf('make:request %s/%s -p %s --type=plain --route-model=%s',
+                $this->pluralClass,
+                __('laravel-crud::classes.request_' . $key, locale: $this->locale),
+                __($key, locale: $this->locale),
+                Str::of($this->singularClass)->camel()));
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function makeResources(): void
+    {
+        Artisan::call(sprintf('make:resource %s/%s', $this->singularClass, $this->singularClass));
+        Artisan::call(sprintf('make:resource %s/%sCollection', $this->singularClass, $this->singularClass));
+    }
+
+    /**
+     * @param bool|array|string|null $singularClass
+     * @return void
+     */
+    public function makePolicy(): void
+    {
+        Artisan::call(sprintf('make:policy %sPolicy --model=%s --method-list=%s --method-view=%s --method-create=%s --method-update=%s --method-delete=%s',
+            $this->singularClass,
+            $this->singularClass,
+            __('list', locale: $this->locale),
+            __('view', locale: $this->locale),
+            __('create', locale: $this->locale),
+            __('update', locale: $this->locale),
+            __('delete', locale: $this->locale)));
+    }
+
+    /**
+     * @return void
+     */
+    public function outputRoutes(): void
+    {
+        $this->alert('Routes: ' . base_path('routes/api.php'));
+
+        $this->line(sprintf('Route::prefix(\'%s\')->middleware(\'auth:api\')->group(function() {',
+            Str::of($this->pluralClass)->kebab()));
+
+        $this->line("\t" . sprintf('Route::get(\'/\', \App\Http\Controllers\%s\%s::class);',
+                $this->pluralClass,
+                __('laravel-crud::classes.controller_list', locale: $this->locale)));
+
+        $this->line("\t" . sprintf('Route::post(\'/\', \App\Http\Controllers\%s\%s::class);',
+                $this->pluralClass,
+                __('laravel-crud::classes.controller_create', locale: $this->locale)));
+
+        $this->line("\t" . sprintf('Route::patch(\'/{%s}\', \App\Http\Controllers\%s\%s::class);',
+                Str::of($this->singularClass)->camel(),
+                $this->pluralClass,
+                __('laravel-crud::classes.controller_update', locale: $this->locale)));
+
+        $this->line("\t" . sprintf('Route::get(\'/{%s}\', \App\Http\Controllers\%s\%s::class);',
+                Str::of($this->singularClass)->camel(),
+                $this->pluralClass,
+                __('laravel-crud::classes.controller_view', locale: $this->locale)));
+
+        $this->line("\t" . sprintf('Route::delete(\'/{%s}\', \App\Http\Controllers\%s\%s::class);',
+                Str::of($this->singularClass)->camel(),
+                $this->pluralClass,
+                __('laravel-crud::classes.controller_delete', locale: $this->locale)));
+
+        $this->line('});');
+    }
+
+    /**
+     * @return void
+     */
+    public function outputServiceProvider(): void
+    {
+        $this->alert('AppServiceProvider: ' . app_path('Providers/AppServiceProvider.php'));
+        $this->line(sprintf('\\App\\Repositories\\%s\\Contracts\\%sRepository::class => \\App\\Repositories\\%s\\%sRepository::class,',
+            $this->singularClass,
+            $this->singularClass,
+            $this->singularClass,
+            $this->singularClass));
     }
 }
