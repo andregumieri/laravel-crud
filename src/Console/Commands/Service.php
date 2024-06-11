@@ -34,6 +34,10 @@ class Service extends GeneratorCommand
             $stub = "/stubs/service.{$type}.stub";
         }
 
+        if($this->option('with-repository')) {
+            $stub = str_replace('.stub', '.with-repository.stub', $stub);
+        }
+
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath
             : __DIR__.$stub;
@@ -77,6 +81,7 @@ class Service extends GeneratorCommand
     protected function getOptions()
     {
         $options = parent::getOptions();
+        $options[] = ['with-repository', null, InputOption::VALUE_NONE, 'Informs the service that it should create repository'];
         $options[] = ['repository', 'r', InputOption::VALUE_REQUIRED, 'Informs the service whats the repository to load'];
         $options[] = ['repository-action', null, InputOption::VALUE_OPTIONAL, 'Informs the repository action'];
         $options[] = ['request', null, InputOption::VALUE_REQUIRED, 'Informs the request'];

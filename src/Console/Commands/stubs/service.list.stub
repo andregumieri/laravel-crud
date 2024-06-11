@@ -3,19 +3,15 @@
 namespace {{ namespace }};
 
 use {{modelUsePath}};
-use {{repositoryUsePath}};
 use {{requestNamespace}};
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 
 class {{ class }}
 {
- 	public function __construct(
- 		private readonly {{repositoryClass}} $repository
- 	) {}
+ 	public function __construct() {}
 
-    public function handle({{requestClass}} $request): LengthAwarePaginator
+    public function handle({{requestClass}} $request)
     {
-        return $this->repository->{{action}}($request->only([]), $request->get('per_page', 30));
+        //
     }
 }
