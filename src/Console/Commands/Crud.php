@@ -68,7 +68,7 @@ class Crud extends Command
 
 
         // SERVICES
-        if(config('crud.creates.service')) {
+        if(config('crud.creates.services')) {
             $this->makeServices();
         }
 
@@ -200,41 +200,49 @@ class Crud extends Command
      */
     public function makeServices(): string
     {
+        $flags = [];
+        if(config('crud.creates.repository')) {
+            $flags[] = '--with-repositories';
+        }
+
         foreach (['create', 'delete', 'update'] as $key) {
             Artisan::call(sprintf(
-                'make:service %s/%s -r %sRepository --request=%s/%s --type=%s --repository-action=%s',
+                'make:service %s/%s -r %sRepository --request=%s/%s --type=%s --repository-action=%s %s',
                 $this->pluralClass,
                 __('laravel-crud::classes.service_' . $key, locale: $this->locale),
                 $this->singularClass,
                 $this->pluralClass,
                 __('laravel-crud::classes.request_' . $key, locale: $this->locale),
                 Str::of($key)->replaceEnd('Service', '')->camel(),
-                Str::of($key)->replaceEnd('Service', '')->camel()
+                Str::of($key)->replaceEnd('Service', '')->camel(),
+                implode(' ', $flags)
             ));
         }
 
         foreach (['list'] as $key) {
             Artisan::call(sprintf(
-                'make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s',
+                'make:service %s/%s -r %sRepository --repository-action=%s --request=%s/%s --type=%s %s',
                 $this->pluralClass,
                 __('laravel-crud::classes.service_' . $key, locale: $this->locale),
                 $this->singularClass,
                 'searchPaginated',
                 $this->pluralClass,
                 __('laravel-crud::classes.request_' . $key, locale: $this->locale),
-                Str::of($key)->replaceEnd('Service', '')->camel()
+                Str::of($key)->replaceEnd('Service', '')->camel(),
+                implode(' ', $flags)
             ));
         }
 
         foreach (['view'] as $key) {
             Artisan::call(sprintf(
-                'make:service %s/%s -r %sRepository --request=%s/%s --type=%s',
+                'make:service %s/%s -r %sRepository --request=%s/%s --type=%s %s',
                 $this->pluralClass,
                 __('laravel-crud::classes.service_' . $key, locale: $this->locale),
                 $this->singularClass,
                 $this->pluralClass,
                 __('laravel-crud::classes.request_' . $key, locale: $this->locale),
-                Str::of($key)->replaceEnd('Service', '')->camel()
+                Str::of($key)->replaceEnd('Service', '')->camel(),
+                implode(' ', $flags)
             ));
         }
 
