@@ -202,7 +202,7 @@ class Crud extends Command
     {
         $flags = [];
         if(config('crud.creates.repository')) {
-            $flags[] = '--with-repositories';
+            $flags[] = '--with-repository';
         }
 
         foreach (['create', 'delete', 'update'] as $key) {
