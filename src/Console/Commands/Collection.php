@@ -52,7 +52,7 @@ class Collection extends GeneratorCommand
 
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace . '\Collections';
+        return $rootNamespace . '\\' . config('crud.namespaces.collections', 'Collections');
     }
 
     protected function getPath($name)
