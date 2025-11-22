@@ -26,6 +26,17 @@ class Model extends ModelMakeCommand
         }
     }
 
+    protected function buildClass($name)
+    {
+        $replaces = [
+            '{{namespaceCollection}}' => config('crud.namespaces.collections', 'Collections'),
+            '{{baseRepositoryUse}}' => '',
+            '{{extends}}' => '',
+        ];
+
+        return str_replace(array_keys($replaces), array_values($replaces), parent::buildClass($name));
+    }
+
     protected function getOptions()
     {
         $options = parent::getOptions();
