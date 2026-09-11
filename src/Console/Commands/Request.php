@@ -2,12 +2,15 @@
 
 namespace AndreGumieri\LaravelCrud\Console\Commands;
 
+use AndreGumieri\LaravelCrud\Console\Commands\Concerns\RegistersExtraOptions;
 use Illuminate\Foundation\Console\RequestMakeCommand;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class Request extends RequestMakeCommand
 {
+    use RegistersExtraOptions;
+
     protected function buildClass($name)
     {
         $replaces = [];
@@ -47,13 +50,13 @@ class Request extends RequestMakeCommand
         return parent::getStub();
     }
 
-    protected function getOptions()
+    protected function extraOptions(): array
     {
-        $options = parent::getOptions();
-        $options[] = ['policy', 'p', InputOption::VALUE_OPTIONAL, 'Informs the policy for authorization'];
-        $options[] = ['type', null, InputOption::VALUE_REQUIRED, 'Manually specify the controller stub file to use'];
-        $options[] = ['route-model', null, InputOption::VALUE_REQUIRED, 'Specify the route model that is binded'];
-        return $options;
+        return [
+            ['policy', 'p', InputOption::VALUE_OPTIONAL, 'Informs the policy for authorization'],
+            ['type', null, InputOption::VALUE_REQUIRED, 'Manually specify the controller stub file to use'],
+            ['route-model', null, InputOption::VALUE_REQUIRED, 'Specify the route model that is binded'],
+        ];
     }
 
     protected function resolveStubPath($stub)

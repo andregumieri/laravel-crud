@@ -2,12 +2,15 @@
 
 namespace AndreGumieri\LaravelCrud\Console\Commands;
 
+use AndreGumieri\LaravelCrud\Console\Commands\Concerns\RegistersExtraOptions;
 use Illuminate\Routing\Console\ControllerMakeCommand;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class Controller extends ControllerMakeCommand
 {
+    use RegistersExtraOptions;
+
     protected function buildClass($name)
     {
         $replaces = [];
@@ -49,10 +52,10 @@ class Controller extends ControllerMakeCommand
         }
     }
 
-    protected function getOptions()
+    protected function extraOptions(): array
     {
-        $options = parent::getOptions();
-        $options[] = ['with-resource', null, InputOption::VALUE_OPTIONAL, 'Inform the resource to the controller type service'];
-        return $options;
+        return [
+            ['with-resource', null, InputOption::VALUE_OPTIONAL, 'Inform the resource to the controller type service'],
+        ];
     }
 }

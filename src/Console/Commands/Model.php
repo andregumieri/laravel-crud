@@ -2,11 +2,14 @@
 
 namespace AndreGumieri\LaravelCrud\Console\Commands;
 
+use AndreGumieri\LaravelCrud\Console\Commands\Concerns\RegistersExtraOptions;
 use Illuminate\Foundation\Console\ModelMakeCommand;
 use Symfony\Component\Console\Input\InputOption;
 
 class Model extends ModelMakeCommand
 {
+    use RegistersExtraOptions;
+
     protected function getStub()
     {
         if($this->option('with-collection')) {
@@ -37,10 +40,10 @@ class Model extends ModelMakeCommand
         return str_replace(array_keys($replaces), array_values($replaces), parent::buildClass($name));
     }
 
-    protected function getOptions()
+    protected function extraOptions(): array
     {
-        $options = parent::getOptions();
-        $options[] = ['with-collection', null, InputOption::VALUE_OPTIONAL, 'Informs that model should have custom collection'];
-        return $options;
+        return [
+            ['with-collection', null, InputOption::VALUE_OPTIONAL, 'Informs that model should have custom collection'],
+        ];
     }
 }
